@@ -1,7 +1,6 @@
 package zarucki.chess.entities
 
 // TODO: should pieces be distinguishable?
-// TODO: behaviour of pieces, how they move
 sealed trait Piece {
 	def representation: Char
 

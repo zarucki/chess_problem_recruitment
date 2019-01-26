@@ -43,7 +43,6 @@ object File {
 
 /**
 	* Represents columns on chess boards, it is a base26 number
-	* @param fileAsString
 	* @example A,B,C,(...),Z,BA,BB,BC,(...),BZ,CA,CB,CC,(...),ZX,ZY,ZZ,BAA,BAB,BAC,(...)
 	*/
 class File private (zeroBasedColumnNumber: Int, knownStringRepresentation: Option[String] = None) extends Equals {
