@@ -9,14 +9,13 @@ import scala.annotation.tailrec
 // TODO: pallarel akka?
 object ChessProblemSolver {
 
-	// TODO: which order is best?
 	private def pieceToWeight(piece: Piece): Int = {
 		piece match {
-			case _: Queen => 10
-			case _: Rook => 9
-			case _: Bishop => 8
-			case _: King => 7
-			case _: Knight => 6
+			case _: Queen => 5
+			case _: Rook => 4
+			case _: Bishop => 3
+			case _: Knight => 2
+			case _: King => 1
 		}
 	}
 
@@ -44,7 +43,7 @@ object ChessProblemSolver {
 			val nonThreatenedFields = currentBoardState.peacefulPlaces(piecesToPlaceOfGivenType.head).toSet
 			if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < piecesToPlaceOfGivenType.size) {
 				// this is dead end, we need to take step back
-				// TODO: mark other similar things as dead end
+				// TODO: mark other symmetric things as dead ends
 				List.empty
 			} else {
 				val pieceToPlace = piecesToPlaceOfGivenType.head
