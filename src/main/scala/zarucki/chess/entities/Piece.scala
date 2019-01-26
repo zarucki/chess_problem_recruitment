@@ -57,19 +57,20 @@ case class King() extends Piece {
 case class Knight() extends Piece{
 	override def representation: Char = 'N'
 
+	private val cachedComplexMovements: List[OneStepMovement] = List(
+			toNorth.andThen(toNorth).andThen(toWest),
+			toNorth.andThen(toNorth).andThen(toEast),
+			toEast.andThen(toEast).andThen(toNorth),
+			toEast.andThen(toEast).andThen(toSouth),
+			toSouth.andThen(toSouth).andThen(toEast),
+			toSouth.andThen(toSouth).andThen(toWest),
+			toWest.andThen(toWest).andThen(toSouth),
+			toWest.andThen(toWest).andThen(toNorth)
+		)
+
 	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
 		val mvba = MaybeValidBoardAddress(address)
-		List(
-			toNorth.andThen(toNorth).andThen(toWest)(mvba) #::
-			toNorth.andThen(toNorth).andThen(toEast)(mvba) #::
-			toEast.andThen(toEast).andThen(toNorth)(mvba) #::
-			toEast.andThen(toEast).andThen(toSouth)(mvba) #::
-			toSouth.andThen(toSouth).andThen(toEast)(mvba) #::
-			toSouth.andThen(toSouth).andThen(toWest)(mvba) #::
-			toWest.andThen(toWest).andThen(toSouth)(mvba) #::
-			toWest.andThen(toWest).andThen(toNorth)(mvba) #::
-			Stream.empty[MaybeValidBoardAddress]
-		)
+		List(cachedComplexMovements.map(_.apply(mvba)).toStream)
 	}
 }
 
