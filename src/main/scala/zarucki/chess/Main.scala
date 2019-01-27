@@ -1,11 +1,11 @@
 package zarucki.chess
 
-import zarucki.chess.utils.ChessBoardExtensions.consolePrintableChessBoard
 import zarucki.chess.entities.{ChessBoard, Piece}
+import zarucki.chess.utils.ChessBoardExtensions.consolePrintableChessBoard
+import zarucki.chess.utils.MeasurementUtils.measureTimeInMs
 
 import scala.util.Try
 
-// TODO: don't use println
 /**
 	* Example args 7 7 q q k k b b n
 	* or
@@ -23,20 +23,21 @@ object Main extends App {
 
 				val boardWidth = width.toInt
 				val boardHeight = height.toInt
-				val parsedPieces = piecesToPlace.toList.sorted.flatMap(c => Piece.apply(c.head.toUpper))
+				val parsedPieces = piecesToPlace.toList.sorted.flatMap(pieceString => Piece.apply(pieceString.head.toUpper))
 				println(s"Solving problem for: $boardWidth x $boardHeight (w x h) and " +
 					s"pieces: ${parsedPieces.mkString(" ")} and printed solutions: ${numberOfSolutions}")
 
-				// TODO: print timing
-				val solutions: List[ChessBoard] = ChessProblemSolver.solveNonThreatenProblem(
-					boardWidth.toInt,
-					boardHeight.toInt,
-					parsedPieces
-				)
+				val (solutions: List[ChessBoard], elapsedTimeInMs) = measureTimeInMs {
+					ChessProblemSolver.solveNonThreatenProblem(
+						boardWidth.toInt,
+						boardHeight.toInt,
+						parsedPieces
+					)
+				}
 
-				solutions.take(numberOfSolutions).foreach { s => println(s.toConsoleStringWithoutThreats) }
+				solutions.take(numberOfSolutions).foreach { s => println(s.toConsoleString()) }
 
-				println(s"Total solutions: ${solutions.size}")
+				println(s"Total solutions: ${solutions.size}. Found in time: ${elapsedTimeInMs} ms")
 		}
 	} catch {
 		case exception: Exception =>

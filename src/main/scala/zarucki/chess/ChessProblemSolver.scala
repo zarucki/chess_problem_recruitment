@@ -19,6 +19,7 @@ object ChessProblemSolver {
 	}
 
 	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece], parallel: Boolean = true): List[ChessBoard] = {
+		assert(chessPiecesToPlace.nonEmpty)
 		val emptyBoard = VectorChessBoard(maxFile = File(boardFiles - 1), maxRank = boardRanks - 1)
 
 		val groupedAndSortedChessPieces = chessPiecesToPlace
