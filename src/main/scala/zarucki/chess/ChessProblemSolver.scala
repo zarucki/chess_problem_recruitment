@@ -28,36 +28,65 @@ object ChessProblemSolver {
 			.toList
 			.sortBy(o => -1 * pieceToWeight(o.head))
 
-		actuallySolveTheProblem(emptyBoard, groupedAndSortedChessPieces)
+//		solveProblemWithoutTailRecursion(emptyBoard, groupedAndSortedChessPieces)
+		solveProblemWithTailRecursion(emptyBoard :: Nil, groupedAndSortedChessPieces)
 	}
 
-	// TODO: make it tailrec
-	// @tailrec
-	private def actuallySolveTheProblem(currentBoardState: ChessBoard, leftChessPiecesToPlace: Seq[Seq[Piece]]): List[ChessBoard] = {
+	private def solveProblemWithoutTailRecursion(currentBoardState: ChessBoard, leftChessPiecesToPlace: Seq[Seq[Piece]]): List[ChessBoard] = {
 		if (leftChessPiecesToPlace.isEmpty) {
 			List(currentBoardState)
-			// TODO: add other symetric configurations as results
 		} else {
-			// TODO: precheck if/filter something was already considered? because is symmetric
 			val piecesToPlaceOfGivenType = leftChessPiecesToPlace.head.toList
 			val nonThreatenedFields = currentBoardState.peacefulPlaces(piecesToPlaceOfGivenType.head).toSet
 			if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < piecesToPlaceOfGivenType.size) {
 				// this is dead end, we need to take step back
-				// TODO: mark other symmetric things as dead ends
 				List.empty
 			} else {
 				val pieceToPlace = piecesToPlaceOfGivenType.head
 
+				// we are placing pieces of one type at once to not consider the same combinations
 				combinationsOfN(nonThreatenedFields, piecesToPlaceOfGivenType.size).flatMap {
 					case oneElementSet if oneElementSet.size == 1 =>
-						actuallySolveTheProblem(currentBoardState.placePiece(oneElementSet.head, pieceToPlace), leftChessPiecesToPlace.tail)
+						solveProblemWithoutTailRecursion(currentBoardState.placePiece(oneElementSet.head, pieceToPlace), leftChessPiecesToPlace.tail)
 					case multiElementSet =>
 						currentBoardState.tryPlacingMultipleOfSamePiece(multiElementSet, pieceToPlace) match {
-							case Right(newBoard) => actuallySolveTheProblem(newBoard, leftChessPiecesToPlace.tail)
+							case Right(newBoard) => solveProblemWithoutTailRecursion(newBoard, leftChessPiecesToPlace.tail)
 							case _ => List.empty
 						}
 				}.toList
 			}
+		}
+	}
+
+	 @tailrec
+	private def solveProblemWithTailRecursion(chessBoards: List[ChessBoard], leftChessPiecesToPlace: Seq[Seq[Piece]]): List[ChessBoard] = {
+		if (leftChessPiecesToPlace.isEmpty) {
+			chessBoards
+		} else {
+			val piecesToPlaceOfGivenType = leftChessPiecesToPlace.head.toList
+
+			val newChessBoards = chessBoards.flatMap { currentBoard =>
+				val nonThreatenedFields = currentBoard.peacefulPlaces(piecesToPlaceOfGivenType.head).toSet
+
+				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < piecesToPlaceOfGivenType.size) {
+					// this is dead end, we need to take step back
+					List.empty
+				} else {
+					val pieceToPlace = piecesToPlaceOfGivenType.head
+
+					// we are placing pieces of one type at once to not consider the same combinations
+					combinationsOfN(nonThreatenedFields, piecesToPlaceOfGivenType.size).flatMap {
+						case oneElementSet if oneElementSet.size == 1 =>
+							Some(currentBoard.placePiece(oneElementSet.head, pieceToPlace))
+						case multiElementSet =>
+							currentBoard.tryPlacingMultipleOfSamePiece(multiElementSet, pieceToPlace) match {
+								case Right(newBoard) => Some(newBoard)
+								case _ => None
+							}
+					}.toList
+				}
+			}
+			solveProblemWithTailRecursion(newChessBoards, leftChessPiecesToPlace.tail)
 		}
 	}
 
