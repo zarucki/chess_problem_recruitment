@@ -1,8 +1,19 @@
 package zarucki.chess.entities
 
 // TODO: rename things here
-sealed trait Piece {
+// TODO: it is messy here
+trait Piece {
 	def representation: Char
+
+	def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean
+
+	// TODO: rename this
+	// TODO: should this still be a stream? it is not infinite in nature!
+	def validMovesFor(startAddress: BoardAddress, maxFile: File, maxRank: Int): Stream[BoardAddress] = {
+		possibleMovesGenerators(startAddress)
+			.map(readValidBoardAddresses(_, maxFile, maxRank))
+			.reduce(_ ++ _)
+	}
 
 	override final def toString: String = {
 		representation.toUpper.toString
@@ -14,19 +25,20 @@ sealed trait Piece {
 		addr.rank <= maxRank && addr.rank >= 0 && addr.fileAsInt <= maxFile.asInt && addr.fileAsInt >= 0
 	}
 
-	// TODO: rename this
-	// TODO: should this still be a stream? it is not infinite in nature!
-	def validMovesFor(startAddress: BoardAddress, maxFile: File, maxRank: Int): Stream[BoardAddress] = {
-		possibleMovesGenerators(startAddress)
-			.map(readValidBoardAddresses(_, maxFile, maxRank))
-			.reduce(_ ++ _)
-	}
-
 	protected def readValidBoardAddresses(moveStream: Stream[MaybeValidBoardAddress], maxFile: File, maxRank: Int): Stream[BoardAddress] = {
 		moveStream
 			.filter(isMoveDestinationWithinBoard(_, maxFile, maxRank))
 			.map(maybeValidBoardAddress => BoardAddress(File(maybeValidBoardAddress.fileAsInt), maybeValidBoardAddress.rank))
 	}
+
+
+	protected object MaybeValidBoardAddress {
+		def apply(boardAddress: BoardAddress): MaybeValidBoardAddress = {
+			MaybeValidBoardAddress(fileAsInt = boardAddress.file.asInt, rank = boardAddress.rank)
+		}
+	}
+
+	protected case class MaybeValidBoardAddress(fileAsInt: Int, rank: Int)
 
 	protected type OneStepMovement = MaybeValidBoardAddress => MaybeValidBoardAddress
 
@@ -57,4 +69,3 @@ trait MovesManySquares {
 			.map(maybeValidBoardAddress => BoardAddress(File(maybeValidBoardAddress.fileAsInt), maybeValidBoardAddress.rank))
 	}
 }
-

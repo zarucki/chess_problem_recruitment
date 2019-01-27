@@ -1,6 +1,6 @@
 package zarucki.chess
 
-import zarucki.chess.entities.{ChessBoard, Piece}
+import zarucki.chess.entities.{ChessBoard, PieceHelper}
 import zarucki.chess.utils.ChessBoardExtensions.consolePrintableChessBoard
 import zarucki.chess.utils.MeasurementUtils.measureTimeInMs
 
@@ -23,7 +23,7 @@ object Main extends App {
 
 				val boardWidth = width.toInt
 				val boardHeight = height.toInt
-				val parsedPieces = piecesToPlace.toList.sorted.flatMap(pieceString => Piece.apply(pieceString.head.toUpper))
+				val parsedPieces = piecesToPlace.toList.sorted.flatMap(pieceString => PieceHelper.fromLetter(pieceString.head.toUpper))
 				println(s"Solving problem for: $boardWidth x $boardHeight (w x h) and " +
 					s"pieces: ${parsedPieces.mkString(" ")} and printed solutions: ${numberOfSolutions}")
 

@@ -24,21 +24,22 @@ case class VectorChessBoard private (
 	occupiedSquares: Map[BoardAddress, Piece],
 	peacefulSquares: Set[BoardAddress]
 ) extends ChessBoard {
+	override type Board = VectorChessBoard
+
 	assert(boardSquares.size >= 1)
 
 	override lazy val boardMaxFile: File = File(boardSquares(0).size - 1)
 	override lazy val boardMaxRank: Int = boardSquares.size - 1
 
-	override type Board = VectorChessBoard
-
+	private lazy val peacefulSquaresAsSeq = peacefulSquares.toSeq
 	override def peacefulPlaces(newPiece: Piece): Seq[BoardAddress] = {
-		// TODO: maybe dont do this here, when placing we practically do this again
-		peacefulSquares.filter { potentialAddress =>
-			val potentialDangerZone: Set[BoardAddress] = newPiece.validMovesFor(startAddress = potentialAddress, maxFile = boardMaxFile, maxRank = boardMaxRank).toSet
-			val isItSafePositionFoAllRest = occupiedSquares.keys.forall { alreadyPlacedBoardAddress => !potentialDangerZone.contains(alreadyPlacedBoardAddress) }
-			//			val isItSafePositionFoAllRest = potentialDangerZone.map(getBoardSquare).forall(!_.isInstanceOf[Occupied])
-			isItSafePositionFoAllRest
-		}.toSeq
+		if (occupiedSquares.isEmpty) {
+			peacefulSquaresAsSeq
+		} else {
+			peacefulSquares.filterNot { potentialAddress =>
+				occupiedSquares.keys.exists(occupiedAddress => newPiece.canMoveFromTo(potentialAddress, occupiedAddress))
+			}.toSeq
+		}
 	}
 
 	override def placePiece(pieceToPlace: Piece, newPieceAddress: BoardAddress): VectorChessBoard = {

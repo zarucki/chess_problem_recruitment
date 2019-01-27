@@ -114,5 +114,5 @@ Gives following result on my T470 i5-6300u / 16GB:
     [info]  0 |   |   |   |   |   | Q |   |
     [info]    -----------------------------
     [info]      A   B   C   D   E   F   G  
-    [info] Total solutions: 3063828. Found in time: 21574 ms
+    [info] Total solutions: 3063828. Found in time: 19025 ms
 

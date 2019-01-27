@@ -20,6 +20,11 @@ final case object King extends Piece {
 			toWest(mvba) #:: toNorthWest(mvba) #:: Stream.empty[MaybeValidBoardAddress]
 		)
 	}
+
+	override def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean = {
+		val addressDelta = fromAddress.getAddressDelta(toAddress)
+		addressDelta.rankDelta <= 1 && addressDelta.fileDelta <= 1
+	}
 }
 
 final case object Knight extends Piece {
@@ -40,22 +45,11 @@ final case object Knight extends Piece {
 		val mvba = MaybeValidBoardAddress(address)
 		List(cachedComplexMovements.map(_.apply(mvba)).toStream)
 	}
-}
 
-// TODO: not exactly sure this is most clear way to do this
-trait MovesManySquares {
-	self: Piece =>
-
-	protected def continuousMovementInDirection(startAddress: BoardAddress, changeFun: OneStepMovement): Stream[MaybeValidBoardAddress] = {
-		lazy val moveStream: Stream[MaybeValidBoardAddress] = changeFun(MaybeValidBoardAddress(startAddress)) #:: moveStream.map(addr => changeFun(addr))
-		moveStream
-	}
-
-	// Streams for continous pieces are infinite, we need to read them til the first invalid move
-	override protected  def readValidBoardAddresses(moveStream: scala.Stream[MaybeValidBoardAddress], maxFile: File, maxRank: Int): scala.Stream[BoardAddress] = {
-		moveStream
-			.takeWhile(isMoveDestinationWithinBoard(_, maxFile, maxRank))
-			.map(maybeValidBoardAddress => BoardAddress(File(maybeValidBoardAddress.fileAsInt), maybeValidBoardAddress.rank))
+	override def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean = {
+		val addressDelta = fromAddress.getAddressDelta(toAddress)
+		(addressDelta.rankDelta == 1 && addressDelta.fileDelta == 2) ||
+			(addressDelta.rankDelta == 2 && addressDelta.fileDelta == 1)
 	}
 }
 
@@ -74,6 +68,11 @@ final case object Queen extends Piece with MovesManySquares {
 			continuousMovementInDirection(address, toNorthWest)
 		)
 	}
+
+	override def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean = {
+		val addressDelta = fromAddress.getAddressDelta(toAddress)
+		addressDelta.rankDelta == 0 || addressDelta.fileDelta == 0 || addressDelta.rankDelta == addressDelta.fileDelta
+	}
 }
 
 final case object Rook extends Piece with MovesManySquares {
@@ -86,6 +85,11 @@ final case object Rook extends Piece with MovesManySquares {
 			continuousMovementInDirection(address, toSouth),
 			continuousMovementInDirection(address, toWest)
 		)
+	}
+
+	override def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean = {
+		val addressDelta = fromAddress.getAddressDelta(toAddress)
+		addressDelta.rankDelta == 0 || addressDelta.fileDelta == 0
 	}
 }
 
@@ -100,13 +104,9 @@ final case object Bishop extends Piece with MovesManySquares {
 			continuousMovementInDirection(address, toNorthWest)
 		)
 	}
-}
 
-object MaybeValidBoardAddress {
-	def apply(boardAddress: BoardAddress): MaybeValidBoardAddress = {
-		MaybeValidBoardAddress(fileAsInt = boardAddress.file.asInt, rank = boardAddress.rank)
+	override def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean = {
+		val addressDelta = fromAddress.getAddressDelta(toAddress)
+		addressDelta.rankDelta == addressDelta.fileDelta
 	}
 }
-
-// TODO: maybe instead of this introduce some NIL to BoardAddress
-case class MaybeValidBoardAddress(fileAsInt: Int, rank: Int)
