@@ -8,3 +8,11 @@ libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % "3.0.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
+
+scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint", "-opt:l:inline", "-opt-inline-from:**")
+
+javacOptions ++= Seq("-Xlint")
+
+javaOptions in run ++= Seq("-XX:+UseParallelGC", "-XX:+UseParallelOldGC")
+
+fork in run := true
