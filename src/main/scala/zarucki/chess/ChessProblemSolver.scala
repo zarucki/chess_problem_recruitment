@@ -3,7 +3,6 @@ package zarucki.chess
 import zarucki.chess.entities._
 
 import scala.annotation.tailrec
-import scala.collection.parallel.ParSeq
 
 // TODO: use some logger instead of println
 // TODO: measure statistics like time and amount of possibilities checked
@@ -19,7 +18,7 @@ object ChessProblemSolver {
 		}
 	}
 
-	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece]): List[ChessBoard] = {
+	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece], parallel: Boolean = true): List[ChessBoard] = {
 		val emptyBoard = VectorChessBoard(maxFile = File(boardFiles - 1), maxRank = boardRanks - 1)
 
 		val groupedAndSortedChessPieces = chessPiecesToPlace
@@ -28,17 +27,18 @@ object ChessProblemSolver {
 			.toList
 			.sortBy { case (piece, _) => -1 * pieceToWeight(piece) }
 
-		solveProblemWithTailRecursion(ParSeq(emptyBoard), groupedAndSortedChessPieces)
+		solveProblemWithTailRecursion(List(emptyBoard), groupedAndSortedChessPieces, parallel)
 	}
 
 	 @tailrec
-	private def solveProblemWithTailRecursion(chessBoards: ParSeq[ChessBoard], leftChessPiecesToPlace: Seq[(Piece, Int)]): List[ChessBoard] = {
+	private def solveProblemWithTailRecursion(chessBoards: List[ChessBoard], leftChessPiecesToPlace: Seq[(Piece, Int)], parallel :Boolean): List[ChessBoard] = {
 		if (leftChessPiecesToPlace.isEmpty) {
-			chessBoards.toList
+			chessBoards
 		} else {
 			val (piece, pieceCount) = leftChessPiecesToPlace.head
 
-			val newChessBoards: ParSeq[ChessBoard] = chessBoards.flatMap { currentBoard =>
+			val chessBoardsToConsider = if (parallel) chessBoards.par else chessBoards
+			val newChessBoards: List[ChessBoard] = chessBoardsToConsider.flatMap { currentBoard =>
 				val nonThreatenedFields = currentBoard.peacefulPlaces(piece).toSet
 
 				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < pieceCount) {
@@ -55,9 +55,9 @@ object ChessProblemSolver {
 							}
 					}.toList
 				}
-			}
+			}.toList
 
-			solveProblemWithTailRecursion(newChessBoards, leftChessPiecesToPlace.tail)
+			solveProblemWithTailRecursion(newChessBoards, leftChessPiecesToPlace.tail, parallel)
 		}
 	}
 
