@@ -1,6 +1,15 @@
 package zarucki.chess.entities
 
 // TODO: should pieces be distinguishable?
+object Piece {
+	private val allKnownPieces = Set(King(), Queen(), Rook(), Bishop(), Knight())
+	private val characterToPieceMap: Map[Char, Piece] = allKnownPieces.map(p => p.representation -> p).toMap
+
+	def apply(letter: Char): Option[Piece] = {
+		characterToPieceMap.get(letter)
+	}
+}
+
 sealed trait Piece {
 	def representation: Char
 

@@ -13,6 +13,6 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint", "-opt:l:inline", "-o
 
 javacOptions ++= Seq("-Xlint")
 
-javaOptions in run ++= Seq("-XX:+UseParallelGC", "-XX:+UseParallelOldGC")
+javaOptions in run ++= Seq("-Xms4g", "-Xmx8g")
 
 fork in run := true
