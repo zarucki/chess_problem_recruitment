@@ -35,7 +35,7 @@ object Main extends App {
 					)
 				}
 
-				solutions.take(numberOfSolutions).foreach { s => println(s.toConsoleString()) }
+				solutions.take(numberOfSolutions).foreach { s => println(s.toConsoleString(drawThreats = false)) }
 
 				println(s"Total solutions: ${solutions.size}. Found in time: ${elapsedTimeInMs} ms")
 		}

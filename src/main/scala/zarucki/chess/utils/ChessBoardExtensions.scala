@@ -6,8 +6,9 @@ object ChessBoardExtensions {
 	import scala.language.implicitConversions
 
 	class ConsolePrintableChessBoard(chessBoard: ChessBoard) {
-		def toConsoleString = ConsoleChessBoardPrinter.boardAsConsoleString(chessBoard, drawThreatenedSquares = true)
-		def toConsoleStringWithoutThreats = ConsoleChessBoardPrinter.boardAsConsoleString(chessBoard, drawThreatenedSquares = false)
+		def toConsoleString(drawThreats: Boolean = true) = {
+			ConsoleChessBoardPrinter.boardAsConsoleString(chessBoard, drawThreats, additionalLegend = false)
+		}
 	}
 
 	implicit def consolePrintableChessBoard(chessBoard: ChessBoard): ConsolePrintableChessBoard = {
