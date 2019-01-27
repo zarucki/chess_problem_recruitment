@@ -41,14 +41,14 @@ case class VectorChessBoard private (
 		}.toSeq
 	}
 
-	override def placePiece(address: BoardAddress, pieceToPlace: Piece): VectorChessBoard = {
-		tryPlacingMultipleOfSamePiece(Set(address), pieceToPlace) match {
+	override def placePiece(pieceToPlace: Piece, newPieceAddress: BoardAddress): VectorChessBoard = {
+		tryPlacingMultipleOfSamePiece(pieceToPlace, newPieceAddress) match {
 			case Left(msg) => throw new java.lang.AssertionError("assertion failed: " + msg)
 			case Right(board) => board
 		}
 	}
 
-	override def tryPlacingMultipleOfSamePiece(newPieceAddresses: Set[BoardAddress], pieceToPlace: Piece): Either[String, VectorChessBoard] = {
+	override def tryPlacingMultipleOfSamePiece(pieceToPlace: Piece, newPieceAddresses: BoardAddress*): Either[String, VectorChessBoard] = {
 		def boardWithUpdatedSquare(boardToUpdate: VectorChessBoard, addressOfUpdatedSquare: BoardAddress, newBoardSquare: BoardSquare, markAddressAsOccupied: Boolean = false) = {
 			VectorChessBoard(
 				boardSquares = boardToUpdate.boardSquares.updated(

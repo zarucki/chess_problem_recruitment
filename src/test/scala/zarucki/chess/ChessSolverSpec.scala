@@ -14,21 +14,21 @@ class ChessSolverSpec extends UnitSpec {
 
 		assert(result == Set(
 			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(BoardAddress(File("A"), 0), King)
-				.placePiece(BoardAddress(File("A"), 2), King)
-				.placePiece(BoardAddress(File("C"), 1), Rook),
+				.placePiece(King, BoardAddress(File("A"), 0))
+				.placePiece(King, BoardAddress(File("A"), 2))
+				.placePiece(Rook, BoardAddress(File("C"), 1)),
 			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(BoardAddress(File("C"), 0), King)
-				.placePiece(BoardAddress(File("C"), 2), King)
-				.placePiece(BoardAddress(File("A"), 1), Rook),
+				.placePiece(King, BoardAddress(File("C"), 0))
+				.placePiece(King, BoardAddress(File("C"), 2))
+				.placePiece(Rook, BoardAddress(File("A"), 1)),
 			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(BoardAddress(File("A"), 2), King)
-				.placePiece(BoardAddress(File("C"), 2), King)
-				.placePiece(BoardAddress(File("B"), 0), Rook),
+				.placePiece(King, BoardAddress(File("A"), 2))
+				.placePiece(King, BoardAddress(File("C"), 2))
+				.placePiece(Rook, BoardAddress(File("B"), 0)),
 			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(BoardAddress(File("A"), 0), King)
-				.placePiece(BoardAddress(File("C"), 0), King)
-				.placePiece(BoardAddress(File("B"), 2), Rook)
+				.placePiece(King, BoardAddress(File("A"), 0))
+				.placePiece(King, BoardAddress(File("C"), 0))
+				.placePiece(Rook, BoardAddress(File("B"), 2))
 		))
 	}
 
@@ -41,12 +41,12 @@ class ChessSolverSpec extends UnitSpec {
 
 		assert(result.contains(
 			VectorChessBoard(maxFile = File("D"), maxRank = 3)
-				.placePiece(BoardAddress(File("A"), 0), Rook)
-				.placePiece(BoardAddress(File("C"), 2), Rook)
-				.placePiece(BoardAddress(File("B"), 1), Knight)
-				.placePiece(BoardAddress(File("B"), 3), Knight)
-				.placePiece(BoardAddress(File("D"), 1), Knight)
-				.placePiece(BoardAddress(File("D"), 3), Knight)
+				.placePiece(Rook, BoardAddress(File("A"), 0))
+				.placePiece(Rook, BoardAddress(File("C"), 2))
+				.placePiece(Knight, BoardAddress(File("B"), 1))
+				.placePiece(Knight, BoardAddress(File("B"), 3))
+				.placePiece(Knight, BoardAddress(File("D"), 1))
+				.placePiece(Knight, BoardAddress(File("D"), 3))
 		))
 		assert(result.size == 8)
 	}

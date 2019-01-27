@@ -42,12 +42,13 @@ object ChessProblemSolver {
 				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < pieceCount) {
 					List.empty
 				} else {
+					// TODO: refactor here, at least rename things
 					// we are placing pieces of one type at once to not consider the same combinations in different order
 					combinationsOfN(nonThreatenedFields, pieceCount).flatMap {
 						case oneElementSet if oneElementSet.size == 1 =>
-							Some(currentBoard.placePiece(oneElementSet.head, piece))
+							Some(currentBoard.placePiece(piece, oneElementSet.head))
 						case multiElementSet =>
-							currentBoard.tryPlacingMultipleOfSamePiece(multiElementSet, piece) match {
+							currentBoard.tryPlacingMultipleOfSamePiece(piece, multiElementSet.toSeq :_*) match {
 								case Right(newBoard) => Some(newBoard)
 								case _ => None
 							}

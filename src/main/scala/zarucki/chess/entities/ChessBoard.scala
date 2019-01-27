@@ -36,8 +36,8 @@ trait ChessBoard {
 	type Board <: ChessBoard
 
 	def peacefulPlaces(newPiece: Piece): Seq[BoardAddress]
-	def placePiece(address: BoardAddress, pieceToPlace: Piece): Board
-	def tryPlacingMultipleOfSamePiece(addresses: Set[BoardAddress], pieceToPlace: Piece): Either[String, Board]
+	def placePiece(pieceToPlace: Piece, newPieceAddress: BoardAddress): Board
+	def tryPlacingMultipleOfSamePiece(pieceToPlace: Piece, newPieceAddresses: BoardAddress*): Either[String, Board]
 
 	def getWholeBoardRank(rank: Int): Seq[BoardSquare]
 	def getBoardSquare(address: BoardAddress): BoardSquare
