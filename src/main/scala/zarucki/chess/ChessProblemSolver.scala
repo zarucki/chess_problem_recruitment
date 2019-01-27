@@ -4,17 +4,17 @@ import zarucki.chess.entities._
 
 import scala.annotation.tailrec
 
-// TODO: use some logger instead of println
+// TODO: stats how many iterations, time
 // TODO: measure statistics like time and amount of possibilities checked
 object ChessProblemSolver {
 
 	private def pieceToWeight(piece: Piece): Int = {
 		piece match {
-			case _: Queen => 5
-			case _: Rook => 4
-			case _: Bishop => 3
-			case _: Knight => 2
-			case _: King => 1
+			case Queen => 5
+			case Rook => 4
+			case Bishop => 3
+			case Knight => 2
+			case King => 1
 		}
 	}
 

@@ -1,8 +1,7 @@
 package zarucki.chess.entities
 
-// TODO: should pieces be distinguishable?
 object Piece {
-	private val allKnownPieces = Set(King(), Queen(), Rook(), Bishop(), Knight())
+	private val allKnownPieces = Set(King, Queen, Rook, Bishop, Knight)
 	private val characterToPieceMap: Map[Char, Piece] = allKnownPieces.map(p => p.representation -> p).toMap
 
 	def apply(letter: Char): Option[Piece] = {
@@ -50,7 +49,7 @@ sealed trait Piece {
 	protected val toSouthWest = toSouth.andThen(toWest)
 }
 
-case class King() extends Piece {
+final case object King extends Piece {
 	override def representation: Char = 'K'
 
 	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
@@ -63,7 +62,7 @@ case class King() extends Piece {
 	}
 }
 
-case class Knight() extends Piece{
+final case object Knight extends Piece {
 	override def representation: Char = 'N'
 
 	private val cachedComplexMovements: List[OneStepMovement] = List(
@@ -87,7 +86,7 @@ case class Knight() extends Piece{
 trait MovesManySquares {
 	self: Piece =>
 
-	protected def continousMovementInDirection(startAddress: BoardAddress, changeFun: OneStepMovement): Stream[MaybeValidBoardAddress] = {
+	protected def continuousMovementInDirection(startAddress: BoardAddress, changeFun: OneStepMovement): Stream[MaybeValidBoardAddress] = {
 		lazy val moveStream: Stream[MaybeValidBoardAddress] = changeFun(MaybeValidBoardAddress(startAddress)) #:: moveStream.map(addr => changeFun(addr))
 		moveStream
 	}
@@ -100,45 +99,45 @@ trait MovesManySquares {
 	}
 }
 
-case class Queen() extends Piece with MovesManySquares {
+final case object Queen extends Piece with MovesManySquares {
 	override def representation: Char = 'Q'
 
 	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
 		List(
-			continousMovementInDirection(address, toNorth),
-			continousMovementInDirection(address, toNorthEast),
-			continousMovementInDirection(address, toEast),
-			continousMovementInDirection(address, toSouthEast),
-			continousMovementInDirection(address, toSouth),
-			continousMovementInDirection(address, toSouthWest),
-			continousMovementInDirection(address, toWest),
-			continousMovementInDirection(address, toNorthWest)
+			continuousMovementInDirection(address, toNorth),
+			continuousMovementInDirection(address, toNorthEast),
+			continuousMovementInDirection(address, toEast),
+			continuousMovementInDirection(address, toSouthEast),
+			continuousMovementInDirection(address, toSouth),
+			continuousMovementInDirection(address, toSouthWest),
+			continuousMovementInDirection(address, toWest),
+			continuousMovementInDirection(address, toNorthWest)
 		)
 	}
 }
 
-case class Rook() extends Piece with MovesManySquares {
+final case object Rook extends Piece with MovesManySquares {
 	override def representation: Char = 'R'
 
 	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
 		List(
-			continousMovementInDirection(address, toNorth),
-			continousMovementInDirection(address, toEast),
-			continousMovementInDirection(address, toSouth),
-			continousMovementInDirection(address, toWest)
+			continuousMovementInDirection(address, toNorth),
+			continuousMovementInDirection(address, toEast),
+			continuousMovementInDirection(address, toSouth),
+			continuousMovementInDirection(address, toWest)
 		)
 	}
 }
 
-case class Bishop() extends Piece with MovesManySquares {
+final case object Bishop extends Piece with MovesManySquares {
 	override def representation: Char = 'B'
 
 	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
 		List(
-			continousMovementInDirection(address, toNorthEast),
-			continousMovementInDirection(address, toSouthEast),
-			continousMovementInDirection(address, toSouthWest),
-			continousMovementInDirection(address, toNorthWest)
+			continuousMovementInDirection(address, toNorthEast),
+			continuousMovementInDirection(address, toSouthEast),
+			continuousMovementInDirection(address, toSouthWest),
+			continuousMovementInDirection(address, toNorthWest)
 		)
 	}
 }
