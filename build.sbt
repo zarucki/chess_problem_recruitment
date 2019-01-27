@@ -16,3 +16,5 @@ javacOptions ++= Seq("-Xlint")
 javaOptions in run ++= Seq("-Xms4g", "-Xmx8g")
 
 fork in run := true
+
+parallelExecution in Test := false
