@@ -7,16 +7,13 @@ import scala.annotation.tailrec
 // TODO: stats how many iterations, time
 // TODO: measure statistics like time and amount of possibilities checked
 object ChessProblemSolver {
-
-	private def pieceToWeight(piece: Piece): Int = {
-		piece match {
-			case Queen => 5
-			case Rook => 4
-			case Bishop => 3
-			case Knight => 2
-			case King => 1
-		}
-	}
+	private lazy val pieceToWeight: Map[Piece, Int] = Map(
+		Queen -> 5,
+		Rook -> 4,
+		Bishop -> 3,
+		Knight -> 2,
+		King -> 1
+	)
 
 	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece], parallel: Boolean = true): List[ChessBoard] = {
 		assert(chessPiecesToPlace.nonEmpty)
