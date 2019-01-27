@@ -2,8 +2,6 @@ package zarucki.chess.entities
 
 import zarucki.chess.entities.VectorChessBoard.BoardSquares
 
-import scala.collection.mutable
-
 object VectorChessBoard {
 	def apply(maxFile: File, maxRank: Int): VectorChessBoard = {
 		assert(maxRank >= 1)
@@ -50,53 +48,42 @@ case class VectorChessBoard private (
 		}
 	}
 
-	// This is most inner loop in solution
-	override def tryPlacingMultipleOfSamePiece(addresses: Set[BoardAddress], pieceToPlace: Piece): Either[String, VectorChessBoard] = {
-		var piecesToPlaceFromSet = mutable.Set(addresses.toSeq :_*)
-
-		// immutables are faster
-		var updatedBoardSquares = boardSquares
-		var updatedPeacefulSquares = peacefulSquares
-		var updatedOccupiedSquares = occupiedSquares
-
-		def markSquareAsNotEmpty(addr: BoardAddress, newBoardSquare: BoardSquare): Unit = {
-			updatedBoardSquares = updatedBoardSquares.updated(
-				addr.rank,
-				updatedBoardSquares(addr.rank).updated(addr.file.asInt, newBoardSquare)
-			)
-			updatedPeacefulSquares -= addr
-		}
-
-		// TODO: make it more pretty than this ugly while?
-		while (piecesToPlaceFromSet.nonEmpty) {
-			val address = piecesToPlaceFromSet.head
-
-			if (getBoardSquare(address, updatedBoardSquares) != FreePeaceful) {
-				return Left(s"Couldn't place piece $pieceToPlace on $address because field was either under attack or occupied.")
-			}
-
-			markSquareAsNotEmpty(address, Occupied(pieceToPlace))
-			updatedOccupiedSquares = updatedOccupiedSquares.updated(address, pieceToPlace)
-
-			val dangerZone = pieceToPlace.validMovesFor(startAddress = address, maxFile = boardMaxFile, maxRank = boardMaxRank)
-			dangerZone.foreach { endangeredAddress =>
-				getBoardSquare(endangeredAddress, updatedBoardSquares) match {
-					case FreePeaceful => markSquareAsNotEmpty(endangeredAddress, FreeUnderThreat)
-					case Occupied(threatenedPiece) => return Left(s"Couldn't place piece $pieceToPlace on $address cause it threatens piece $threatenedPiece on $endangeredAddress.")
-					case FreeUnderThreat =>
-				}
-			}
-
-			piecesToPlaceFromSet = piecesToPlaceFromSet.tail
-		}
-
-		Right(
+	override def tryPlacingMultipleOfSamePiece(newPieceAddresses: Set[BoardAddress], pieceToPlace: Piece): Either[String, VectorChessBoard] = {
+		def boardWithUpdatedSquare(boardToUpdate: VectorChessBoard, addressOfUpdatedSquare: BoardAddress, newBoardSquare: BoardSquare, markAddressAsOccupied: Boolean = false) = {
 			VectorChessBoard(
-				boardSquares = updatedBoardSquares,
-				occupiedSquares = updatedOccupiedSquares,
-				peacefulSquares = updatedPeacefulSquares
+				boardSquares = boardToUpdate.boardSquares.updated(
+					addressOfUpdatedSquare.rank,
+					boardToUpdate.boardSquares(addressOfUpdatedSquare.rank).updated(addressOfUpdatedSquare.file.asInt, newBoardSquare)
+				),
+				occupiedSquares = if (markAddressAsOccupied) boardToUpdate.occupiedSquares.updated(addressOfUpdatedSquare, pieceToPlace) else boardToUpdate.occupiedSquares,
+				peacefulSquares = boardToUpdate.peacefulSquares - addressOfUpdatedSquare,
 			)
-		)
+		}
+
+		newPieceAddresses.foldLeft[Either[String, VectorChessBoard]](Right(this)) {
+			case (l @ Left(_), _) => l
+			case (Right(currentChessBoard), addressOfNewPiece) if getBoardSquare(addressOfNewPiece, currentChessBoard.boardSquares) != FreePeaceful =>
+				Left(s"Couldn't place piece $pieceToPlace on $addressOfNewPiece because field was either under attack or occupied.")
+			case (Right(currentChessBoard), addressOfNewPiece) =>
+				val boardAfterPlacingPiece = boardWithUpdatedSquare(currentChessBoard, addressOfNewPiece, Occupied(pieceToPlace), markAddressAsOccupied = true)
+
+				val placedPieceDangerZoneAddresses = pieceToPlace.validMovesFor(
+					startAddress = addressOfNewPiece,
+					maxFile = boardMaxFile,
+					maxRank = boardMaxRank
+				)
+
+				placedPieceDangerZoneAddresses
+					.map(addressUnderThreat => (addressUnderThreat, getBoardSquare(addressUnderThreat, boardAfterPlacingPiece.boardSquares)))
+					.foldLeft[Either[String, VectorChessBoard]](Right(boardAfterPlacingPiece)) {
+						case (l @ Left(_), _) => l
+						case (_, (addressUnderThreat, Occupied(threatenedPiece))) =>
+							Left(s"Couldn't place piece $pieceToPlace on $addressOfNewPiece cause it threatens piece $threatenedPiece on $addressUnderThreat.")
+						case (Right(chessBoardAfterPlacingPieceAndThreatUpdates), (addressUnderThreat, FreePeaceful)) =>
+							Right(boardWithUpdatedSquare(chessBoardAfterPlacingPieceAndThreatUpdates, addressUnderThreat, FreeUnderThreat))
+						case (r @ Right(_), (_, FreeUnderThreat)) => r
+					}
+		}
 	}
 
 	override def getBoardSquare(address: BoardAddress): BoardSquare = {
