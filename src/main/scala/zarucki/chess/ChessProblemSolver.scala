@@ -7,7 +7,6 @@ import scala.collection.parallel.ParSeq
 
 // TODO: use some logger instead of println
 // TODO: measure statistics like time and amount of possibilities checked
-// TODO: pallarel akka?
 object ChessProblemSolver {
 
 	private def pieceToWeight(piece: Piece): Int = {
@@ -23,36 +22,34 @@ object ChessProblemSolver {
 	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece]): List[ChessBoard] = {
 		val emptyBoard = VectorChessBoard(maxFile = File(boardFiles - 1), maxRank = boardRanks - 1)
 
-		val groupedAndSortedChessPieces: Seq[Seq[Piece]] = chessPiecesToPlace
+		val groupedAndSortedChessPieces = chessPiecesToPlace
 			.groupBy(_.representation)
-			.map(_._2)
+			.map { case (_, pieces) => (pieces.head, pieces.size)}
 			.toList
-			.sortBy(o => -1 * pieceToWeight(o.head))
+			.sortBy { case (piece, _) => -1 * pieceToWeight(piece) }
 
 		solveProblemWithTailRecursion(ParSeq(emptyBoard), groupedAndSortedChessPieces)
 	}
 
 	 @tailrec
-	private def solveProblemWithTailRecursion(chessBoards: ParSeq[ChessBoard], leftChessPiecesToPlace: Seq[Seq[Piece]]): List[ChessBoard] = {
+	private def solveProblemWithTailRecursion(chessBoards: ParSeq[ChessBoard], leftChessPiecesToPlace: Seq[(Piece, Int)]): List[ChessBoard] = {
 		if (leftChessPiecesToPlace.isEmpty) {
 			chessBoards.toList
 		} else {
-			val piecesToPlaceOfGivenType = leftChessPiecesToPlace.head.toList
+			val (piece, pieceCount) = leftChessPiecesToPlace.head
 
 			val newChessBoards: ParSeq[ChessBoard] = chessBoards.flatMap { currentBoard =>
-				val nonThreatenedFields = currentBoard.peacefulPlaces(piecesToPlaceOfGivenType.head).toSet
+				val nonThreatenedFields = currentBoard.peacefulPlaces(piece).toSet
 
-				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < piecesToPlaceOfGivenType.size) {
+				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < pieceCount) {
 					List.empty
 				} else {
-					val pieceToPlace = piecesToPlaceOfGivenType.head
-
 					// we are placing pieces of one type at once to not consider the same combinations in different order
-					combinationsOfN(nonThreatenedFields, piecesToPlaceOfGivenType.size).flatMap {
+					combinationsOfN(nonThreatenedFields, pieceCount).flatMap {
 						case oneElementSet if oneElementSet.size == 1 =>
-							Some(currentBoard.placePiece(oneElementSet.head, pieceToPlace))
+							Some(currentBoard.placePiece(oneElementSet.head, piece))
 						case multiElementSet =>
-							currentBoard.tryPlacingMultipleOfSamePiece(multiElementSet, pieceToPlace) match {
+							currentBoard.tryPlacingMultipleOfSamePiece(multiElementSet, piece) match {
 								case Right(newBoard) => Some(newBoard)
 								case _ => None
 							}
