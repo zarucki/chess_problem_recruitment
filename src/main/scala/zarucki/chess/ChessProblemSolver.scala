@@ -3,6 +3,7 @@ package zarucki.chess
 import zarucki.chess.entities._
 
 import scala.annotation.tailrec
+import scala.collection.parallel.ParSeq
 
 // TODO: stats how many iterations, time
 // TODO: measure statistics like time and amount of possibilities checked
@@ -15,7 +16,7 @@ object ChessProblemSolver {
 		King -> 1
 	)
 
-	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece], parallel: Boolean = true): List[ChessBoard] = {
+	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece]): List[ChessBoard] = {
 		assert(chessPiecesToPlace.nonEmpty)
 		val emptyBoard = VectorChessBoard(maxFile = File(boardFiles - 1), maxRank = boardRanks - 1)
 
@@ -25,42 +26,32 @@ object ChessProblemSolver {
 			.toList
 			.sortBy { case (piece, _) => -1 * pieceToWeight(piece) }
 
-		solveProblemWithTailRecursion(List(emptyBoard), groupedAndSortedChessPieces, parallel)
+		solveProblemWithTailRecursion(ParSeq(emptyBoard), groupedAndSortedChessPieces)
 	}
 
 	 @tailrec
-	private def solveProblemWithTailRecursion(chessBoards: List[ChessBoard], leftChessPiecesToPlace: Seq[(Piece, Int)], parallel :Boolean): List[ChessBoard] = {
-		if (leftChessPiecesToPlace.isEmpty) {
-			chessBoards
-		} else {
-			val (piece, pieceCount) = leftChessPiecesToPlace.head
+	private def solveProblemWithTailRecursion(chessBoards: ParSeq[ChessBoard], chessPiecesToPlace: Seq[(Piece, Int)]): List[ChessBoard] = {
+		 chessPiecesToPlace match {
+			 case Nil => chessBoards.toList
+			 case (pieceType, pieceCount) :: restOfPiecesToPlace =>
 
-			val chessBoardsToConsider = if (parallel) chessBoards.par else chessBoards
-			val newChessBoards: List[ChessBoard] = chessBoardsToConsider.flatMap { currentBoard =>
-				val nonThreatenedFields = currentBoard.peacefulPlaces(piece).toSet
+				 val chessBoardsAfterAddingPiecesOfType: ParSeq[ChessBoard] = chessBoards
+					 .map(currentBoard => (currentBoard, currentBoard.peacefulPlacesForPiece(pieceType).toSet))
+					 .filter { case (_, peacefulPlacesForPiece) => peacefulPlacesForPiece.size >= pieceCount }
+					 .flatMap { case (currentBoard, peacefulPlacesForPiece) =>
+						 allNonRepeatingCombinationsOfN(peacefulPlacesForPiece, pieceCount).flatMap {
+							 case singleAddressSet if singleAddressSet.size == 1 =>
+								 Some(currentBoard.placePiece(pieceType, singleAddressSet.head))
+							 case multiAddressSet =>
+								 currentBoard.tryPlacingMultipleOfSamePiece(pieceType, multiAddressSet.toSeq :_*).toOption
+						 }
+					 }
 
-				if (nonThreatenedFields.isEmpty || nonThreatenedFields.size < pieceCount) {
-					List.empty
-				} else {
-					// TODO: refactor here, at least rename things
-					// we are placing pieces of one type at once to not consider the same combinations in different order
-					combinationsOfN(nonThreatenedFields, pieceCount).flatMap {
-						case oneElementSet if oneElementSet.size == 1 =>
-							Some(currentBoard.placePiece(piece, oneElementSet.head))
-						case multiElementSet =>
-							currentBoard.tryPlacingMultipleOfSamePiece(piece, multiElementSet.toSeq :_*) match {
-								case Right(newBoard) => Some(newBoard)
-								case _ => None
-							}
-					}.toList
-				}
-			}.toList
-
-			solveProblemWithTailRecursion(newChessBoards, leftChessPiecesToPlace.tail, parallel)
-		}
+				 solveProblemWithTailRecursion(chessBoardsAfterAddingPiecesOfType, restOfPiecesToPlace)
+		 }
 	}
 
-	private def combinationsOfN(boardMoves: Set[BoardAddress], n: Int): Iterator[Set[BoardAddress]] = {
+	private def allNonRepeatingCombinationsOfN(boardMoves: Set[BoardAddress], n: Int): Iterator[Set[BoardAddress]] = {
 		if (n > 1) {
 			// TODO: maybe own implementation would be faster?
 			boardMoves.subsets(n)

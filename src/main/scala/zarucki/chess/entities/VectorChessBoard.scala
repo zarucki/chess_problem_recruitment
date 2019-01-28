@@ -32,7 +32,10 @@ case class VectorChessBoard private (
 	override lazy val boardMaxRank: Int = boardSquares.size - 1
 
 	private lazy val peacefulSquaresAsSeq = peacefulSquares.toSeq
-	override def peacefulPlaces(newPiece: Piece): Seq[BoardAddress] = {
+
+	override def peacefulPlaces: Seq[BoardAddress] = peacefulSquaresAsSeq
+
+	override def peacefulPlacesForPiece(newPiece: Piece): Seq[BoardAddress] = {
 		if (occupiedSquares.isEmpty) {
 			peacefulSquaresAsSeq
 		} else {

@@ -35,7 +35,8 @@ package zarucki.chess.entities
 trait ChessBoard {
 	type Board <: ChessBoard
 
-	def peacefulPlaces(newPiece: Piece): Seq[BoardAddress]
+	def peacefulPlaces: Seq[BoardAddress]
+	def peacefulPlacesForPiece(newPiece: Piece): Seq[BoardAddress]
 	def placePiece(pieceToPlace: Piece, newPieceAddress: BoardAddress): Board
 	def tryPlacingMultipleOfSamePiece(pieceToPlace: Piece, newPieceAddresses: BoardAddress*): Either[String, Board]
 
