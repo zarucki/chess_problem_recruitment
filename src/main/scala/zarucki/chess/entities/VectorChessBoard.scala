@@ -42,7 +42,7 @@ case class VectorChessBoard private (
 		} else {
 			peacefulSquares.filterNot { potentialAddress =>
 				occupiedSquares.keys.exists(occupiedAddress => newPiece.canMoveFromTo(potentialAddress, occupiedAddress))
-			}.toSeq
+			}.to
 		}
 	}
 

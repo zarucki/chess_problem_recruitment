@@ -32,7 +32,7 @@ object ChessProblemSolver {
 	 @tailrec
 	private def solveProblemWithTailRecursion(chessBoards: ParSeq[ChessBoard], chessPiecesToPlace: Seq[(Piece, Int)]): List[ChessBoard] = {
 		 chessPiecesToPlace match {
-			 case Nil => chessBoards.toList
+			 case Nil => chessBoards.to
 			 case (pieceType, pieceCount) :: restOfPiecesToPlace =>
 				 val allLeftPiecesToPlace: Int = chessPiecesToPlace.foldLeft(0)(_ + _._2)
 
@@ -46,7 +46,7 @@ object ChessProblemSolver {
 							 case singleAddressSet if singleAddressSet.size == 1 =>
 								 Some(currentBoard.placePiece(pieceType, singleAddressSet.head))
 							 case multiAddressSet =>
-								 currentBoard.tryPlacingMultipleOfSamePiece(pieceType, multiAddressSet.toSeq :_*).toOption
+								 currentBoard.tryPlacingMultipleOfSamePiece(pieceType, multiAddressSet.to :_*).toOption
 						 }
 					 }
 
@@ -59,7 +59,7 @@ object ChessProblemSolver {
 			// TODO: maybe own implementation would be faster?
 			boardMoves.subsets(n)
 		} else {
-			boardMoves.map(Set(_)).toIterator
+			boardMoves.map(Set(_)).to
 		}
 	}
 }
