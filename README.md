@@ -24,7 +24,7 @@ get the final score. Needless to say, the lower the time, the better**.
 ## Proposed solution
 Simple BFS with small change that if we have multiple pieces of one type to place, we place them at once. We do this to avoid considering the same board configurations. This allows significantly narrowing down search space.
 
-Further performance gains could be achieved by using the fact that when you find one solution, you can rotate it to get another one.
+Further performance gains could be achieved by using the fact that when you find one solution, you can rotate it to get another one. Also there could be heuristic to more quickly cut off branch by calculating that there is not enough place for remaining pieces to place.
 
 ----
 
@@ -43,6 +43,8 @@ The above will return 4 first solutions.
 
 ----
 ## My results
+Solution requires around 4GB RAM. For given problem it takes around 20 seconds.
+
 Running:
 
     sbt "run 7 7 4 q q k k b b n"
