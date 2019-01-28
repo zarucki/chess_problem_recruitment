@@ -1,5 +1,6 @@
 package zarucki.chess.entities
 
+import File.file2Integer
 // TODO: rename things here
 // TODO: it is messy here
 trait Piece {
@@ -22,7 +23,7 @@ trait Piece {
 	protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]]
 
 	protected def isMoveDestinationWithinBoard(addr: MaybeValidBoardAddress, maxFile: File, maxRank: Int): Boolean = {
-		addr.rank <= maxRank && addr.rank >= 0 && addr.fileAsInt <= maxFile.asInt && addr.fileAsInt >= 0
+		addr.rank <= maxRank && addr.rank >= 0 && addr.fileAsInt <= maxFile && addr.fileAsInt >= 0
 	}
 
 	protected def readValidBoardAddresses(moveStream: Stream[MaybeValidBoardAddress], maxFile: File, maxRank: Int): Stream[BoardAddress] = {
@@ -34,7 +35,7 @@ trait Piece {
 
 	protected object MaybeValidBoardAddress {
 		def apply(boardAddress: BoardAddress): MaybeValidBoardAddress = {
-			MaybeValidBoardAddress(fileAsInt = boardAddress.file.asInt, rank = boardAddress.rank)
+			MaybeValidBoardAddress(fileAsInt = boardAddress.file, rank = boardAddress.rank)
 		}
 	}
 

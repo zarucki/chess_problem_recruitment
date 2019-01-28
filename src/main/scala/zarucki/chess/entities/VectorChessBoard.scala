@@ -1,13 +1,14 @@
 package zarucki.chess.entities
 
 import zarucki.chess.entities.VectorChessBoard.BoardSquares
+import File.file2Integer
 
 object VectorChessBoard {
 	def apply(maxFile: File, maxRank: Int): VectorChessBoard = {
 		assert(maxRank >= 1)
 
 		VectorChessBoard(
-			boardSquares = Vector.fill(maxRank + 1)(Vector.fill(maxFile.asInt + 1)(FreePeaceful)),
+			boardSquares = Vector.fill(maxRank + 1)(Vector.fill(maxFile + 1)(FreePeaceful)),
 			occupiedSquares = Map(),
 			peacefulSquares = (for (rank <- maxRank to 0 by -1; file <- maxFile.asInt to 0 by -1 )
 				yield BoardAddress(File(file), rank)
@@ -57,7 +58,7 @@ case class VectorChessBoard private (
 			VectorChessBoard(
 				boardSquares = boardToUpdate.boardSquares.updated(
 					addressOfUpdatedSquare.rank,
-					boardToUpdate.boardSquares(addressOfUpdatedSquare.rank).updated(addressOfUpdatedSquare.file.asInt, newBoardSquare)
+					boardToUpdate.boardSquares(addressOfUpdatedSquare.rank).updated(addressOfUpdatedSquare.file, newBoardSquare)
 				),
 				occupiedSquares = if (markAddressAsOccupied) boardToUpdate.occupiedSquares.updated(addressOfUpdatedSquare, pieceToPlace) else boardToUpdate.occupiedSquares,
 				peacefulSquares = boardToUpdate.peacefulSquares - addressOfUpdatedSquare,
@@ -100,8 +101,8 @@ case class VectorChessBoard private (
 	}
 
 	protected def getBoardSquare(address: BoardAddress, fromBoardSquares: BoardSquares): BoardSquare = {
-		assert(address.file.asInt <= boardMaxFile.asInt, "Overflow file.")
+		assert(address.file <= boardMaxFile, "Overflow file.")
 		assert(address.rank <= boardMaxRank, "Overflow rank.")
-		fromBoardSquares(address.rank)(address.file.asInt)
+		fromBoardSquares(address.rank)(address.file)
 	}
 }

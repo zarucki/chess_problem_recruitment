@@ -1,5 +1,7 @@
 package zarucki.chess.entities
 
+import File.file2Integer
+
 // files => columns (a-z)
 // rows => ranks (0-n)
 case class BoardAddress(file: File, rank: Int) {
@@ -8,7 +10,7 @@ case class BoardAddress(file: File, rank: Int) {
 	def getAddressDelta(toAddress: BoardAddress): AddressDelta = {
 		AddressDelta(
 			rankDelta = Math.abs(rank - toAddress.rank),
-			fileDelta = Math.abs(file.asInt - toAddress.file.asInt)
+			fileDelta = Math.abs(file - toAddress.file)
 		)
 	}
 }

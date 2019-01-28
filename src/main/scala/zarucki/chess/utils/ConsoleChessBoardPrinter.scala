@@ -1,6 +1,7 @@
 package zarucki.chess.utils
 
 import zarucki.chess.entities.{ChessBoard, File, FreeUnderThreat, Occupied}
+import zarucki.chess.entities.File.file2Integer
 
 object ConsoleChessBoardPrinter {
 	private val verticalSeparator = "|"
@@ -18,7 +19,7 @@ object ConsoleChessBoardPrinter {
 
 
 		def horizontalSeparator(sb: StringBuilder): StringBuilder = {
-			val fileCount = board.boardMaxFile.asInt + 1
+			val fileCount = board.boardMaxFile + 1
 			val cellContents = (2 * insidePad.length + cellContentSize) * fileCount
 			val verticalBorders = verticalSeparator.length * (fileCount + 1)
 			sb.append(" " * indent)
@@ -29,7 +30,7 @@ object ConsoleChessBoardPrinter {
 		def fileLegend(sb: StringBuilder): StringBuilder = {
 			sb.append(" " * indent)
 				.append(
-					(0 to board.boardMaxFile.asInt)
+					(0 to board.boardMaxFile)
 						.map(fileNumber => insidePad + fileLabel(fileNumber) + insidePad)
 						.mkString(" " * verticalSeparator.length, " ", " " * verticalSeparator.length)
 				).append(newLine)

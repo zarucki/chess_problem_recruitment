@@ -39,6 +39,10 @@ object File {
 
 	private val baseCharacterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	private val fileBase = baseCharacterSet.size
+
+	import scala.language.implicitConversions
+
+	implicit def file2Integer(file: File): Int = file.asInt
 }
 
 /**
@@ -48,7 +52,6 @@ object File {
 class File private (zeroBasedColumnNumber: Int, knownStringRepresentation: Option[String] = None) extends Equals {
 	assert(zeroBasedColumnNumber >= 0, "column number was less than 0")
 
-	// TODO: implicit conversion to int?
 	lazy val asInt: Int = zeroBasedColumnNumber
 	lazy val asString: String = knownStringRepresentation.getOrElse(File.intToBase(zeroBasedColumnNumber))
 
