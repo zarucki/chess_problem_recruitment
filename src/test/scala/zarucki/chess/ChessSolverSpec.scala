@@ -12,24 +12,14 @@ class ChessSolverSpec extends UnitSpec {
 			chessPiecesToPlace = pieceConfiguration(kingCount = 2, rookCount = 1)
 		).toSet
 
-		assert(result == Set(
-			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(King, BoardAddress(File("A"), 0))
-				.placePiece(King, BoardAddress(File("A"), 2))
-				.placePiece(Rook, BoardAddress(File("C"), 1)),
-			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(King, BoardAddress(File("C"), 0))
-				.placePiece(King, BoardAddress(File("C"), 2))
-				.placePiece(Rook, BoardAddress(File("A"), 1)),
-			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(King, BoardAddress(File("A"), 2))
-				.placePiece(King, BoardAddress(File("C"), 2))
-				.placePiece(Rook, BoardAddress(File("B"), 0)),
-			VectorChessBoard(maxFile = File("C"), maxRank = 2)
-				.placePiece(King, BoardAddress(File("A"), 0))
-				.placePiece(King, BoardAddress(File("C"), 0))
-				.placePiece(Rook, BoardAddress(File("B"), 2))
-		))
+
+		val boardLayout1 = VectorChessBoard(maxFile = File("C"), maxRank = 2)
+			.placePiece(King, BoardAddress(File("A"), 0))
+			.placePiece(King, BoardAddress(File("A"), 2))
+			.placePiece(Rook, BoardAddress(File("C"), 1))
+
+		assert(result.size == 4)
+		assert(result == getAll90DegreesVariants(boardLayout1))
 	}
 
 	it should "correctly solve 4×4 board containing 2 Rooks and 4 Knights" in {
@@ -39,16 +29,24 @@ class ChessSolverSpec extends UnitSpec {
 			chessPiecesToPlace = pieceConfiguration(rookCount = 2, knightCount = 4)
 		).toSet
 
-		assert(result.contains(
-			VectorChessBoard(maxFile = File("D"), maxRank = 3)
+		val boardLayout1 = VectorChessBoard(maxFile = File("D"), maxRank = 3)
 				.placePiece(Rook, BoardAddress(File("A"), 0))
 				.placePiece(Rook, BoardAddress(File("C"), 2))
 				.placePiece(Knight, BoardAddress(File("B"), 1))
 				.placePiece(Knight, BoardAddress(File("B"), 3))
 				.placePiece(Knight, BoardAddress(File("D"), 1))
 				.placePiece(Knight, BoardAddress(File("D"), 3))
-		))
+
+		val boardLayout2 = VectorChessBoard(maxFile = File("D"), maxRank = 3)
+			.placePiece(Rook, BoardAddress(File("A"), 2))
+			.placePiece(Rook, BoardAddress(File("C"), 0))
+			.placePiece(Knight, BoardAddress(File("B"), 1))
+			.placePiece(Knight, BoardAddress(File("B"), 3))
+			.placePiece(Knight, BoardAddress(File("D"), 1))
+			.placePiece(Knight, BoardAddress(File("D"), 3))
+
 		assert(result.size == 8)
+		assert(result == getAll90DegreesVariants(boardLayout1) ++ getAll90DegreesVariants(boardLayout2))
 	}
 
 	it should "correctly solve 5×5 board containing 2 kings, 2 rooks and 1 Knight" in {

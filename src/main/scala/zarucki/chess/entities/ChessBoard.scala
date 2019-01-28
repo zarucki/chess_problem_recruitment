@@ -44,4 +44,8 @@ trait ChessBoard {
 	def getBoardSquare(address: BoardAddress): BoardSquare
 	def boardMaxRank: Int
 	def boardMaxFile: File
+
+	def rotate90degrees(): VectorChessBoard
+	def rotate180degrees(): VectorChessBoard
+	def rotate270degrees(): VectorChessBoard
 }

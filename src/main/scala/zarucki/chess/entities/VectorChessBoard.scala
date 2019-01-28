@@ -91,6 +91,41 @@ case class VectorChessBoard private (
 		}
 	}
 
+	override def rotate90degrees(): VectorChessBoard = {
+		assert(boardMaxFile.asInt == boardMaxRank, "Board is not square.")
+		transformWithBoardCenterCoordinates((x,y) => (y,-x))
+	}
+
+	override def rotate180degrees(): VectorChessBoard = {
+		transformWithBoardCenterCoordinates((x,y) => (-x,-y))
+	}
+
+	override def rotate270degrees(): VectorChessBoard = {
+		assert(boardMaxFile.asInt == boardMaxRank, "Board is not square.")
+		transformWithBoardCenterCoordinates((x,y) => (-y,x))
+	}
+
+	// TODO: lazy version, more performant would just rotate inner matrix
+	def transformWithBoardCenterCoordinates(transformation: (Double, Double) => (Double, Double)): VectorChessBoard = {
+		// point around which we rotate
+		val (centerX, centerY) = (boardMaxFile / 2d, boardMaxRank / 2d)
+
+		def translateToNewCoordinateCenter(address: BoardAddress): (Double, Double) = {
+			(address.file - centerX, address.rank - centerY)
+		}
+
+		def translateBackToOriginalCoordinates(x: Double, y: Double): BoardAddress = {
+			BoardAddress(file = File((x + centerX).toInt), rank = (y + centerY).toInt)
+		}
+
+		occupiedSquares.foldLeft(VectorChessBoard(maxRank = boardMaxFile, maxFile = File(boardMaxRank))) { case (rotatedBoard, (oldPieceAddress, piece)) =>
+			val (translatedX, translatedY) = translateToNewCoordinateCenter(oldPieceAddress)
+			val (transformedX, transformedY) = transformation(translatedX, translatedY)
+			val newPieceAddress = translateBackToOriginalCoordinates(transformedX, transformedY)
+			rotatedBoard.placePiece(piece, newPieceAddress)
+		}
+	}
+
 	override def getBoardSquare(address: BoardAddress): BoardSquare = {
 		getBoardSquare(address, boardSquares)
 	}
