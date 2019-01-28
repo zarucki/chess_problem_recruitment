@@ -29,7 +29,7 @@ trait Piece {
 	def representation: Char
 
 	def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean
-	protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]]
+	protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]]
 
 	// TODO: should this still be a stream? it is not infinite in nature!
 	def possibleMoveDestinationsFromPlace(startAddress: BoardAddress, maxFile: File, maxRank: Int): Stream[BoardAddress] = {

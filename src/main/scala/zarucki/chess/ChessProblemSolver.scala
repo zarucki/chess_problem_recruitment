@@ -5,8 +5,6 @@ import zarucki.chess.entities._
 import scala.annotation.tailrec
 import scala.collection.parallel.ParSeq
 
-// TODO: stats how many iterations, time
-// TODO: measure statistics like time and amount of possibilities checked
 object ChessProblemSolver {
 	private lazy val pieceToWeight: Map[Piece, Int] = Map(
 		Queen -> 5,
@@ -36,7 +34,7 @@ object ChessProblemSolver {
 			 case (pieceType, pieceCount) :: restOfPiecesToPlace =>
 				 val allLeftPiecesToPlace: Int = chessPiecesToPlace.foldLeft(0)(_ + _._2)
 
-				 val chessBoardsAfterAddingPiecesOfType: ParSeq[ChessBoard] = chessBoards
+				 val chessBoardsAfterAddingPiecesOfType = chessBoards
 					 .map(currentBoard => (currentBoard, currentBoard.peacefulPlacesForPiece(pieceType).toSet))
 					 .filter { case (currentBoard, peacefulPlacesForPiece) =>
 						 peacefulPlacesForPiece.size >= pieceCount && currentBoard.peacefulPlaces.size >= allLeftPiecesToPlace

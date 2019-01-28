@@ -14,7 +14,7 @@ object PieceHelper {
 final case object King extends Piece {
 	override def representation: Char = 'K'
 
-	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
+	override protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]] = {
 		val mvba = MaybeValidBoardAddress(address)
 		List(
 			toNorth(mvba) #:: toNorthEast(mvba) #:: toEast(mvba) #::
@@ -32,7 +32,7 @@ final case object King extends Piece {
 final case object Knight extends Piece {
 	override def representation: Char = 'N'
 
-	private val cachedComplexMovements: List[OneStepMovement] = List(
+	private val cachedComplexMovements: Seq[OneStepMovement] = Seq(
 			toNorth.andThen(toNorth).andThen(toWest),
 			toNorth.andThen(toNorth).andThen(toEast),
 			toEast.andThen(toEast).andThen(toNorth),
@@ -43,7 +43,7 @@ final case object Knight extends Piece {
 			toWest.andThen(toWest).andThen(toNorth)
 		)
 
-	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
+	override protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]] = {
 		val mvba = MaybeValidBoardAddress(address)
 		List(cachedComplexMovements.map(_.apply(mvba)).toStream)
 	}
@@ -58,8 +58,8 @@ final case object Knight extends Piece {
 final case object Queen extends Piece with MovesManySquares {
 	override def representation: Char = 'Q'
 
-	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
-		List(
+	override protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]] = {
+		Seq(
 			continuousMovementInDirection(address, toNorth),
 			continuousMovementInDirection(address, toNorthEast),
 			continuousMovementInDirection(address, toEast),
@@ -80,8 +80,8 @@ final case object Queen extends Piece with MovesManySquares {
 final case object Rook extends Piece with MovesManySquares {
 	override def representation: Char = 'R'
 
-	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
-		List(
+	override protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]] = {
+		Seq(
 			continuousMovementInDirection(address, toNorth),
 			continuousMovementInDirection(address, toEast),
 			continuousMovementInDirection(address, toSouth),
@@ -98,8 +98,8 @@ final case object Rook extends Piece with MovesManySquares {
 final case object Bishop extends Piece with MovesManySquares {
 	override def representation: Char = 'B'
 
-	override protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]] = {
-		List(
+	override protected def possibleMovesGenerators(address: BoardAddress): Seq[Stream[MaybeValidBoardAddress]] = {
+		Seq(
 			continuousMovementInDirection(address, toNorthEast),
 			continuousMovementInDirection(address, toSouthEast),
 			continuousMovementInDirection(address, toSouthWest),
