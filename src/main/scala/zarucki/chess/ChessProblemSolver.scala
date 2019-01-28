@@ -34,10 +34,13 @@ object ChessProblemSolver {
 		 chessPiecesToPlace match {
 			 case Nil => chessBoards.toList
 			 case (pieceType, pieceCount) :: restOfPiecesToPlace =>
+				 val allLeftPiecesToPlace: Int = chessPiecesToPlace.foldLeft(0)(_ + _._2)
 
 				 val chessBoardsAfterAddingPiecesOfType: ParSeq[ChessBoard] = chessBoards
 					 .map(currentBoard => (currentBoard, currentBoard.peacefulPlacesForPiece(pieceType).toSet))
-					 .filter { case (_, peacefulPlacesForPiece) => peacefulPlacesForPiece.size >= pieceCount }
+					 .filter { case (currentBoard, peacefulPlacesForPiece) =>
+						 peacefulPlacesForPiece.size >= pieceCount && currentBoard.peacefulPlaces.size >= allLeftPiecesToPlace
+					 }
 					 .flatMap { case (currentBoard, peacefulPlacesForPiece) =>
 						 allNonRepeatingCombinationsOfN(peacefulPlacesForPiece, pieceCount).flatMap {
 							 case singleAddressSet if singleAddressSet.size == 1 =>
