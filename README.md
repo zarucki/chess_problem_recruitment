@@ -41,6 +41,12 @@ You can also add additional number param to specify how many solutions you want 
 
 The above will return 4 first solutions.
 
+There is also utility script to run test suite:
+
+    ./runTests.sh
+
+It runs just the sbt test, but first sets heap so it doesn't hang.
+
 ----
 ## My results
 Solution requires around 4GB RAM. For given problem it takes around 20 seconds.
