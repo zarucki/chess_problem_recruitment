@@ -1,5 +1,7 @@
 package zarucki.chess.entities
 
+import zarucki.chess.entities.Piece._
+
 object PieceHelper {
 	private val allKnownPieces = Set(King, Queen, Rook, Bishop, Knight)
 	private val characterToPieceMap: Map[Char, Piece] = allKnownPieces.map(p => p.representation -> p).toMap

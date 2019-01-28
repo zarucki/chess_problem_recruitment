@@ -72,7 +72,7 @@ case class VectorChessBoard private (
 			case (Right(currentChessBoard), addressOfNewPiece) =>
 				val boardAfterPlacingPiece = boardWithUpdatedSquare(currentChessBoard, addressOfNewPiece, Occupied(pieceToPlace), markAddressAsOccupied = true)
 
-				val placedPieceDangerZoneAddresses = pieceToPlace.validMovesFor(
+				val placedPieceDangerZoneAddresses = pieceToPlace.possibleMoveDestinationsFromPlace(
 					startAddress = addressOfNewPiece,
 					maxFile = boardMaxFile,
 					maxRank = boardMaxRank

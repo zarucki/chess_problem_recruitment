@@ -1,16 +1,38 @@
 package zarucki.chess.entities
 
 import File.file2Integer
-// TODO: rename things here
-// TODO: it is messy here
+import zarucki.chess.entities.Piece.{MaybeValidBoardAddress, OneStepMovement}
+
+object Piece {
+	object MaybeValidBoardAddress {
+		def apply(boardAddress: BoardAddress): MaybeValidBoardAddress = {
+			MaybeValidBoardAddress(fileAsInt = boardAddress.file, rank = boardAddress.rank)
+		}
+	}
+
+	case class MaybeValidBoardAddress(fileAsInt: Int, rank: Int)
+
+	type OneStepMovement = MaybeValidBoardAddress => MaybeValidBoardAddress
+
+	val toNorth: OneStepMovement = a => a.copy(rank = a.rank + 1)
+	val toEast: OneStepMovement = a => a.copy(fileAsInt = a.fileAsInt + 1)
+	val toSouth: OneStepMovement = a => a.copy(rank = a.rank - 1)
+	val toWest: OneStepMovement = a => a.copy(fileAsInt = a.fileAsInt - 1)
+
+	val toNorthEast: OneStepMovement = toNorth.andThen(toEast)
+	val toNorthWest: OneStepMovement = toNorth.andThen(toWest)
+	val toSouthEast: OneStepMovement = toSouth.andThen(toEast)
+	val toSouthWest: OneStepMovement = toSouth.andThen(toWest)
+}
+
 trait Piece {
 	def representation: Char
 
 	def canMoveFromTo(fromAddress: BoardAddress, toAddress: BoardAddress): Boolean
+	protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]]
 
-	// TODO: rename this
 	// TODO: should this still be a stream? it is not infinite in nature!
-	def validMovesFor(startAddress: BoardAddress, maxFile: File, maxRank: Int): Stream[BoardAddress] = {
+	def possibleMoveDestinationsFromPlace(startAddress: BoardAddress, maxFile: File, maxRank: Int): Stream[BoardAddress] = {
 		possibleMovesGenerators(startAddress)
 			.map(readValidBoardAddresses(_, maxFile, maxRank))
 			.reduce(_ ++ _)
@@ -19,8 +41,6 @@ trait Piece {
 	override final def toString: String = {
 		representation.toUpper.toString
 	}
-
-	protected def possibleMovesGenerators(address: BoardAddress): List[Stream[MaybeValidBoardAddress]]
 
 	protected def isMoveDestinationWithinBoard(addr: MaybeValidBoardAddress, maxFile: File, maxRank: Int): Boolean = {
 		addr.rank <= maxRank && addr.rank >= 0 && addr.fileAsInt <= maxFile && addr.fileAsInt >= 0
@@ -31,27 +51,6 @@ trait Piece {
 			.filter(isMoveDestinationWithinBoard(_, maxFile, maxRank))
 			.map(maybeValidBoardAddress => BoardAddress(File(maybeValidBoardAddress.fileAsInt), maybeValidBoardAddress.rank))
 	}
-
-
-	protected object MaybeValidBoardAddress {
-		def apply(boardAddress: BoardAddress): MaybeValidBoardAddress = {
-			MaybeValidBoardAddress(fileAsInt = boardAddress.file, rank = boardAddress.rank)
-		}
-	}
-
-	protected case class MaybeValidBoardAddress(fileAsInt: Int, rank: Int)
-
-	protected type OneStepMovement = MaybeValidBoardAddress => MaybeValidBoardAddress
-
-	protected val toNorth: OneStepMovement = a => a.copy(rank = a.rank + 1)
-	protected val toEast: OneStepMovement = a => a.copy(fileAsInt = a.fileAsInt + 1)
-	protected val toSouth: OneStepMovement = a => a.copy(rank = a.rank - 1)
-	protected val toWest: OneStepMovement = a => a.copy(fileAsInt = a.fileAsInt - 1)
-
-	protected val toNorthEast = toNorth.andThen(toEast)
-	protected val toNorthWest = toNorth.andThen(toWest)
-	protected val toSouthEast = toSouth.andThen(toEast)
-	protected val toSouthWest = toSouth.andThen(toWest)
 }
 
 // TODO: not exactly sure this is most clear way to do this
