@@ -5,7 +5,7 @@ import File.file2Integer
 
 object VectorChessBoard {
 	def apply(maxFile: File, maxRank: Int): VectorChessBoard = {
-		assert(maxRank >= 1)
+		assert(maxRank >= 0)
 
 		VectorChessBoard(
 			boardSquares = Vector.fill(maxRank + 1)(Vector.fill(maxFile + 1)(FreePeaceful)),
