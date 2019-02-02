@@ -41,11 +41,9 @@ You can also add additional number param to specify how many solutions you want 
 
 The above will return 4 first solutions.
 
-There is also utility script to run test suite:
+To run tests just call:
 
-    ./runTests.sh
-
-It runs just the sbt test, but first sets heap so it doesn't hang.
+    sbt test
 
 ----
 ## My results
