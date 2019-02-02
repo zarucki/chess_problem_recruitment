@@ -6,6 +6,11 @@ import scala.annotation.tailrec
 import scala.collection.parallel.ParSeq
 
 object ChessProblemSolver {
+	// TODO: count this threshold based on the board size?
+	// Combination number grows fast n - number of squares, k pieces placed at once n! / (k! * (n - k)!)
+	// making optimization longer than placing those pieces one by one
+	private val maxNumberOfPiecesPlacedAtOnce = 4
+
 	private lazy val pieceToWeight: Map[Piece, Int] = Map(
 		Queen -> 5,
 		Rook -> 4,
@@ -15,16 +20,38 @@ object ChessProblemSolver {
 	)
 
 	def solveNonThreatenProblem(boardFiles: Int, boardRanks: Int, chessPiecesToPlace: Seq[Piece]): List[ChessBoard] = {
-		assert(chessPiecesToPlace.nonEmpty)
+		assert(chessPiecesToPlace.nonEmpty, "Empty piece list.")
+
 		val emptyBoard = VectorChessBoard(maxFile = File(boardFiles - 1), maxRank = boardRanks - 1)
 
 		val groupedAndSortedChessPieces = chessPiecesToPlace
 			.groupBy(_.representation)
-			.map { case (_, pieces) => (pieces.head, pieces.size)}
 			.toList
+			.flatMap {
+				case (_, pieces) if pieces.size <= maxNumberOfPiecesPlacedAtOnce => Seq((pieces.head, pieces.size))
+				case (_, pieces) =>
+					val totalPiecesToPlace = pieces.size
+					val rest = totalPiecesToPlace % maxNumberOfPiecesPlacedAtOnce
+					val pieceType = pieces.head
+
+					Seq.fill(totalPiecesToPlace / maxNumberOfPiecesPlacedAtOnce)((pieceType, maxNumberOfPiecesPlacedAtOnce)) ++
+						(if (rest > 0) Seq((pieceType, rest)) else Seq.empty)
+			}
 			.sortBy { case (piece, _) => -1 * pieceToWeight(piece) }
 
-		solveProblemWithTailRecursion(ParSeq(emptyBoard), groupedAndSortedChessPieces)
+
+		val resultChessBoards = solveProblemWithTailRecursion(ParSeq(emptyBoard), groupedAndSortedChessPieces)
+
+		val thereWasGroupSplit = groupedAndSortedChessPieces
+			.groupBy { case (pieceType, _) => pieceType }
+			.exists { case (_, group) => group.size > 1}
+
+		if (thereWasGroupSplit) {
+			// Because we placed piece of one type in multiple steps we will have some duplicate results
+			resultChessBoards.toSet.to
+		} else {
+			resultChessBoards
+		}
 	}
 
 	 @tailrec

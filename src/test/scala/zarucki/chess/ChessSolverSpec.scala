@@ -109,6 +109,30 @@ class ChessSolverSpec extends UnitSpec {
 		assert(result.size == 3063828)
 	}
 
+	it should "correctly solve 6×6 board containing 6 queens" in {
+		val result: List[ChessBoard] = ChessProblemSolver.solveNonThreatenProblem(
+			boardFiles = 6,
+			boardRanks = 6,
+			chessPiecesToPlace = pieceConfiguration(queenCount = 6)
+		)
+
+		println(result.head.toConsoleString())
+		println(result.size)
+		assert(result.size == 4)
+	}
+
+	it should "correctly solve 7×7 board containing 7 queens" in {
+		val result: List[ChessBoard] = ChessProblemSolver.solveNonThreatenProblem(
+			boardFiles = 7,
+			boardRanks = 7,
+			chessPiecesToPlace = pieceConfiguration(queenCount = 7)
+		)
+
+		println(result.head.toConsoleString())
+		println(result.size)
+		assert(result.size == 40)
+	}
+
 	def pieceConfiguration(kingCount: Int = 0, queenCount: Int = 0, bishopCount: Int = 0, rookCount: Int = 0, knightCount: Int = 0): Seq[Piece] = {
 		(0 until kingCount).map(_ => King) ++
 		(0 until queenCount).map(_ => Queen) ++
